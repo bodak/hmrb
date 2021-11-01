@@ -307,7 +307,13 @@ def test_char_iter(string, chars):
 
 
 @pytest.mark.parametrize(
-    "string, unescaped", [('a\\"a', 'a"a'), ("a\\ a", "a a"), ("a\\\\a", "a\\a"),],
+
+    "string, unescaped",
+    [
+        ('a\\"a', 'a"a'),
+        ("a\\ a", "a a"),
+        ("a\\\\a", "a\\a"),
+    ],
 )
 def test_unescape(string, unescaped):
     assert unescape(string) == unescaped
@@ -723,7 +729,10 @@ def test_babylonian_labels(string, label, lbl_idx, valid):
         ("4", 'Law:\n - foo: "goo"\n(\n(lemma: "foo))'),
         ("4", 'Law:\n - foo: "goo"\n(\n(lemma: foo"))'),
         ("4", 'Var foo:\n\n(\n(lemma: "foo")'),
-        ("4", 'Law:\n - foo: "bar"\n((lemma: "foo"))\n' 'Var:\n\n(\n(lemma: "foo")',),
+        (
+            "4",
+            'Law:\n - foo: "bar"\n((lemma: "foo"))\n' 'Var:\n\n(\n(lemma: "foo")',
+        ),
         ("1", 'Var:\n\n(\n(lemma: "foo")'),
         (
             "6",
