@@ -2,13 +2,14 @@ version: 2
 
 prelude: &prelude
   docker:
-  - image: circleci/python:3.6.11
+  - image: bodak/rust-python-alpine
   working_directory: ~/hmrb
 
 setup_code_climate: &setup_code_climate
   run:
     name: setup code climate
     command: |
+      apk add --no-cache curl
       curl -L -o cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
       chmod +x cc-test-reporter
       ./cc-test-reporter before-build
@@ -16,6 +17,7 @@ upload_code_climate: &upload_code_climate
   run:
     name: upload coverage results
     command: |
+      apk add --no-cache git
       ./cc-test-reporter after-build -t coverage.py --exit-code $?
 only_master: &only_master
   filters:
@@ -56,6 +58,7 @@ jobs:
     - checkout
     - *setup_code_climate
     - run: |
+        pip3 install cython
         pip3 install nox
         make tests
     - *upload_code_climate

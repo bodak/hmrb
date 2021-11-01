@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-DOCKER_SHELL = /bin/bash
+DOCKER_SHELL = /bin/sh
 
 
 ##
@@ -210,7 +210,7 @@ tests:
 .PHONY: changelog
 changelog:
 	@echo
-	@nox -rs changelog	
+	@nox -rs changelog
 
 
 .PHONY: sdist
@@ -246,7 +246,7 @@ build_protoc:
 
 .PHONY: docker-build
 # target: docker-build - Build image from scratch
-docker-build: dist
+docker-build:
 	@echo
 	@$(DOCKER) build -f "$(CURDIR)/Dockerfile" -t $(PACKAGE_NAME):$(PACKAGE_VERSION) \
 		--no-cache .
@@ -257,6 +257,12 @@ docker-run:
 	@echo
 	@$(DOCKER) run -it --rm -p $(DOCKER_PORT):$(DOCKER_PORT) \
 		$(PACKAGE_NAME):$(PACKAGE_VERSION)
+
+.PHONY: docker-tests
+# target: docker-test - Run tests inside docker
+docker-tests:
+	@echo
+	@$(DOCKER) run $(PACKAGE_NAME):$(PACKAGE_VERSION) "$(DOCKER_SHELL)" -c "make tests"
 
 .PHONY: docker-clean
 # target: docker-clean - Remove all unused images, built containers and volumes
@@ -296,7 +302,9 @@ clean:
 		-name ".mypy_cache" -type d -exec rm -rf {} + -o \
 		-name ".pytest_cache" -type d -exec rm -rf {} + -o \
 		-name "__pycache__" -type d -exec rm -rf {} + -o \
-		-name "*.so" -exec rm -f {} + -o\
+		-name "*.so" -exec rm -f {} + -o \
+		-name "*.c" -path "hmrb/compat/v1" -exec rm -f {} + -o \
+		-name "target" -type d -exec rm -rf {} + -o \
 		-name "*.py[cod]" -exec rm -f {} +
 
 .PHONY: distclean

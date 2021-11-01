@@ -1,4 +1,5 @@
 import pytest
+from hmrb import rust
 
 
 class TestHammurabi:
@@ -12,6 +13,10 @@ class TestHammurabi:
         self._setup()
         assert True
         self._teardown()
+
+    def test_rust_example(self) -> None:
+        assert rust.rust_lib.is_prime(12) == 0
+        assert rust.rust_lib.is_prime(13) == 1
 
 
 if __name__ == "__main__":

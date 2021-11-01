@@ -128,13 +128,7 @@ latex_elements: dict = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (
-        master_doc,
-        "hmrb.tex",
-        "hmrb Documentation",
-        "Kristian Boda",
-        "manual",
-    ),
+    (master_doc, "hmrb.tex", "hmrb Documentation", "Kristian Boda", "manual",),
 ]
 
 
