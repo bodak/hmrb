@@ -1,5 +1,7 @@
 use pest::error::Error;
 use pest::Parser;
+use regex::Regex;
+use std::collections::HashMap;
 use std::fs;
 
 #[derive(Parser)]
@@ -7,12 +9,12 @@ use std::fs;
 pub struct Grammar;
 
 #[derive(Debug)]
-enum Core<'a> {
+pub enum Core<'a> {
     Array(Vec<Core<'a>>),
-    HashMap(&'a str, &'a str),
+    HashMap(&'a str, Regex),
 }
 
-fn lexer(file: &str) -> Result<Core, Error<Rule>> {
+pub fn lexer(file: &str) -> Result<Core, Error<Rule>> {
     fn parse_element(token: pest::iterators::Pair<Rule>) -> Core {
         match token.as_rule() {
             Rule::grammar => Core::Array(token.into_inner().map(parse_element).collect()),
@@ -23,7 +25,7 @@ fn lexer(file: &str) -> Result<Core, Error<Rule>> {
                 let mut tokens = token.into_inner();
                 let name = tokens.next().unwrap().as_str();
                 let value = tokens.next().unwrap().as_str();
-                Core::HashMap(name, value)
+                Core::HashMap(name, Regex::new(&format!("{}", value)).unwrap())
             }
             Rule::name => unreachable!(),
             Rule::value => unreachable!(),
@@ -41,6 +43,6 @@ fn test_lexer_1() {
     let core: Core = lexer(&test_file).expect("unsuccessful parse");
     assert_eq!(
         format!("{:?}", core),
-        "Array([Array([Array([HashMap(\"lemma\", \"Hello\"), HashMap(\"lemma\", \"World\")])])])"
+        "Array([Array([Array([HashMap(\"lemma\", Hello), HashMap(\"lemma\", World)])])])"
     );
 }
