@@ -6,42 +6,35 @@ use std::fs;
 #[grammar = "bab.pest"]
 pub struct Grammar;
 
+#[derive(Debug)]
 enum Core<'a> {
     Array(Vec<Core<'a>>),
-    String(&'a str),
+    HashMap(&'a str, &'a str),
 }
 
-fn lex(file: &str) -> Result<Core, Error<Rule>> {
+fn lexer(file: &str) -> Result<Core, Error<Rule>> {
     fn parse_element(token: pest::iterators::Pair<Rule>) -> Core {
         match token.as_rule() {
             Rule::grammar => {
-                println!("GRAMMAR {}", token.as_str());
                 Core::Array(token.into_inner().map(parse_element).collect())}
                 ,
             Rule::law => {
-                println!("LAW {}", token.as_str());
                 Core::Array(token.into_inner().map(parse_element).collect())
             },
             Rule::var => {
-                println!("LAW {}", token.as_str());
                 Core::Array(token.into_inner().map(parse_element).collect())
             },
             Rule::attributes => {
-                println!("ATTRS {}", token.as_str());
                 Core::Array(token.into_inner().map(parse_element).collect())
             },
             Rule::attribute => {
-                println!("ATTR {}", token.as_str());
-                Core::Array(token.into_inner().map(parse_element).collect())
+                let mut tokens = token.into_inner();
+                let name = tokens.next().unwrap().as_str();
+                let value = tokens.next().unwrap().as_str();
+                Core::HashMap(name, value)
             },
-            Rule::name => {
-                println!("NAME {}", token.as_str());
-                Core::String(token.as_str())
-            },
-            Rule::value => {
-                println!("VALUE {}", token.as_str());
-                Core::String(token.as_str())
-            },
+            Rule::name => unreachable!(),
+            Rule::value => unreachable!(),
             Rule::WHITESPACE => unreachable!()
         }
     }
@@ -54,6 +47,7 @@ fn lex(file: &str) -> Result<Core, Error<Rule>> {
 #[test]
 fn test_lexer() {
     let test_file = fs::read_to_string("tests/lexer.1").expect("cannot read file");
-    let core: Core = lex(&test_file).expect("unsuccessful parse");
+    let core: Core = lexer(&test_file).expect("unsuccessful parse");
+    println!("{:?}", core);
     assert_eq!(true, true);
 }
