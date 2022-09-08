@@ -27,11 +27,15 @@ impl CoreFns for Core {
     fn new(file: &str) -> Core {
         fn parse_element(token: pest::iterators::Pair<Rule>) -> CoreElement {
             match token.as_rule() {
-                Rule::law => CoreElement::Array(token.into_inner().map(parse_element).collect()),
-                Rule::var => CoreElement::Array(token.into_inner().map(parse_element).collect()),
-                Rule::attributes => {
-                    CoreElement::Array(token.into_inner().map(parse_element).collect())
-                }
+                Rule::law => CoreElement::Array(
+                    token.into_inner().map(parse_element).collect(),
+                ),
+                Rule::var => CoreElement::Array(
+                    token.into_inner().map(parse_element).collect(),
+                ),
+                Rule::attributes => CoreElement::Array(
+                    token.into_inner().map(parse_element).collect(),
+                ),
                 Rule::attribute => {
                     let mut tokens = token.into_inner();
                     let name = tokens.next().unwrap().as_str();
@@ -51,7 +55,8 @@ impl CoreFns for Core {
             .unwrap()
             .next()
             .unwrap();
-        let root: Vec<CoreElement> = grammar_tree.into_inner().map(parse_element).collect();
+        let root: Vec<CoreElement> =
+            grammar_tree.into_inner().map(parse_element).collect();
         Core {
             root: root,
             variable: false,
@@ -62,7 +67,8 @@ impl CoreFns for Core {
 
 #[test]
 fn test_lexer_1() {
-    let test_file = fs::read_to_string("tests/lexer.1").expect("cannot read file");
+    let test_file =
+        fs::read_to_string("tests/lexer.1").expect("cannot read file");
     let core = Core::new(&test_file);
     assert_eq!(
         format!("{:?}", core),
