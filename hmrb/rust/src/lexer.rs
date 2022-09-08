@@ -1,5 +1,6 @@
 use pest::Parser;
 use regex::Regex;
+use std::collections::HashMap;
 use std::fs;
 
 #[derive(Parser)]
@@ -7,43 +8,35 @@ use std::fs;
 pub struct Grammar;
 
 #[derive(Debug)]
-pub enum CoreElement {
-    Array(Vec<CoreElement>),
-    HashMap(String, Regex),
+pub enum Node {
+    Children(Vec<Node>),
+    Child(HashMap<String, Regex>),
 }
 
 #[derive(Debug)]
 pub struct Core {
-    root: Vec<CoreElement>,
+    root: Vec<Node>,
     variable: bool,
     name: String,
 }
 
-pub trait CoreFns {
-    fn new(file: &str) -> Self;
-}
-
-impl CoreFns for Core {
+impl Core {
     fn new(file: &str) -> Core {
-        fn parse_element(token: pest::iterators::Pair<Rule>) -> CoreElement {
+        fn parse_element(
+            token: pest::iterators::Pair<Rule>,
+        ) -> Node {
             match token.as_rule() {
-                Rule::law => CoreElement::Array(
-                    token.into_inner().map(parse_element).collect(),
-                ),
-                Rule::var => CoreElement::Array(
-                    token.into_inner().map(parse_element).collect(),
-                ),
-                Rule::attributes => CoreElement::Array(
+                Rule::law | Rule::var | Rule::attributes => Node::Children(
                     token.into_inner().map(parse_element).collect(),
                 ),
                 Rule::attribute => {
                     let mut tokens = token.into_inner();
                     let name = tokens.next().unwrap().as_str();
                     let value = tokens.next().unwrap().as_str();
-                    CoreElement::HashMap(
+                    Node::Child(HashMap::from([(
                         String::from(name),
                         Regex::new(&format!("{}", value)).unwrap(),
-                    )
+                    )]))
                 }
                 Rule::grammar => unreachable!(),
                 Rule::name => unreachable!(),
@@ -55,7 +48,7 @@ impl CoreFns for Core {
             .unwrap()
             .next()
             .unwrap();
-        let root: Vec<CoreElement> =
+        let root: Vec<Node> =
             grammar_tree.into_inner().map(parse_element).collect();
         Core {
             root: root,
@@ -72,6 +65,6 @@ fn test_lexer_1() {
     let core = Core::new(&test_file);
     assert_eq!(
         format!("{:?}", core),
-        "Core { root: [Array([Array([HashMap(\"lemma\", Hello), HashMap(\"lemma\", World)])])], variable: false, name: \"default\" }"
+        "Core { root: [Children([Children([Child({\"lemma\": Hello}), Child({\"lemma\": World})])])], variable: false, name: \"default\" }"
     );
 }
