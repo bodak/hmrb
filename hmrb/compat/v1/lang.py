@@ -55,7 +55,7 @@ AT_MOST_RE = re.compile(r"\s*at most (?P<max>\d+)(\s*not)?\s*")
 RANGE_RE = re.compile(r"\s*(?P<min>\d+) to (?P<max>\d+)(\s*not)?\s*")
 
 
-INF = 10 ** 10
+INF = 10**10
 _TYPES = {
     "?": (0, 1),
     "*": (0, INF),

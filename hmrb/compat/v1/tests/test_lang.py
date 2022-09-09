@@ -326,15 +326,15 @@ def test_unescape(string, unescaped):
         (1, 2, [], ["("], (False, 1, 1), False, True),
         (1, 2, [*"not"], ["("], (True, 1, 1), False, True),
         (1, 2, [*"optional not"], ["("], (True, 0, 1), False, True),
-        (1, 2, [*"at least 5"], ["("], (False, 5, 10 ** 10), False, True),
+        (1, 2, [*"at least 5"], ["("], (False, 5, 10**10), False, True),
         (1, 2, [*"3 to 5"], ["("], (False, 3, 5), False, True),
         (1, 2, [*"3 to 5 not"], ["("], (True, 3, 5), False, True),
         (1, 2, [*"$var_name"], ["("], (False, 1, 1), True, True),
         (3, 4, [*"(("], [*"((("], (False, 1, 1), False, True),
-        (1, 2, [*"zero or more"], ["("], (False, 0, 10 ** 10), False, True),
-        (1, 2, [*"one or more"], ["("], (False, 1, 10 ** 10), False, True),
-        (1, 2, [*"0 or more"], ["("], (False, 0, 10 ** 10), False, True),
-        (1, 2, [*"1 or more"], ["("], (False, 1, 10 ** 10), False, True),
+        (1, 2, [*"zero or more"], ["("], (False, 0, 10**10), False, True),
+        (1, 2, [*"one or more"], ["("], (False, 1, 10**10), False, True),
+        (1, 2, [*"0 or more"], ["("], (False, 0, 10**10), False, True),
+        (1, 2, [*"1 or more"], ["("], (False, 1, 10**10), False, True),
     ],
 )
 def test_block_iter_open_bracket(
@@ -379,7 +379,18 @@ def test_block_iter_open_bracket_err(start_level, start_buffer, error):
     "opened, it_size, member_type",
     [
         (1, 0, [], [], (False, 1, 1), False, True, False, 0, None),
-        (2, 1, [*'(att: "val"'], [], (False, 1, 1), False, True, True, 1, Types.UNIT,),
+        (
+            2,
+            1,
+            [*'(att: "val"'],
+            [],
+            (False, 1, 1),
+            False,
+            True,
+            True,
+            1,
+            Types.UNIT,
+        ),
         (
             2,
             1,
@@ -665,7 +676,8 @@ def test_parse_block(string, member_types, valid, seg2letter):
 
 
 @pytest.mark.parametrize(
-    "atts, grammar_str", parse_babylonian_data(TEST_DIR / "fixtures/test_lang.bab"),
+    "atts, grammar_str",
+    parse_babylonian_data(TEST_DIR / "fixtures/test_lang.bab"),
 )
 def test_grammar(grammar_str, atts, seg2letter):
     if atts["loads"]:
@@ -728,7 +740,10 @@ def test_babylonian_labels(string, label, lbl_idx, valid):
         ("4", 'Law:\n - foo: "goo"\n(\n(lemma: "foo))'),
         ("4", 'Law:\n - foo: "goo"\n(\n(lemma: foo"))'),
         ("4", 'Var foo:\n\n(\n(lemma: "foo")'),
-        ("4", 'Law:\n - foo: "bar"\n((lemma: "foo"))\n' 'Var:\n\n(\n(lemma: "foo")',),
+        (
+            "4",
+            'Law:\n - foo: "bar"\n((lemma: "foo"))\n' 'Var:\n\n(\n(lemma: "foo")',
+        ),
         ("1", 'Var:\n\n(\n(lemma: "foo")'),
         (
             "6",
