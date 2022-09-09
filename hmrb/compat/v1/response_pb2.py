@@ -22,7 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
     serialized_pb=b'\n\x18\x63ompat/v1/response.proto\x1a\x19google/protobuf/any.proto"$\n\tResponses\x12\x17\n\x07matches\x18\x01 \x03(\x0b\x32\x06.Match"\xf0\x01\n\x05Match\x12\x13\n\x04span\x18\x01 \x01(\x0b\x32\x05.Span\x12*\n\nattributes\x18\x02 \x03(\x0b\x32\x16.Match.AttributesEntry\x12*\n\nunderscore\x18\x03 \x03(\x0b\x32\x16.Match.UnderscoreEntry\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aG\n\x0fUnderscoreEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12#\n\x05value\x18\x02 \x01(\x0b\x32\x14.google.protobuf.Any:\x02\x38\x01"`\n\x06Labels\x12!\n\x05items\x18\x01 \x03(\x0b\x32\x12.Labels.ItemsEntry\x1a\x33\n\nItemsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x14\n\x05value\x18\x02 \x01(\x0b\x32\x05.Span:\x02\x38\x01""\n\x04Span\x12\r\n\x05start\x18\x01 \x01(\t\x12\x0b\n\x03\x65nd\x18\x02 \x01(\tb\x06proto3',
-    dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,],
+    dependencies=[
+        google_dot_protobuf_dot_any__pb2.DESCRIPTOR,
+    ],
 )
 
 
@@ -252,7 +254,10 @@ _MATCH = _descriptor.Descriptor(
         ),
     ],
     extensions=[],
-    nested_types=[_MATCH_ATTRIBUTESENTRY, _MATCH_UNDERSCOREENTRY,],
+    nested_types=[
+        _MATCH_ATTRIBUTESENTRY,
+        _MATCH_UNDERSCOREENTRY,
+    ],
     enum_types=[],
     serialized_options=None,
     is_extendable=False,
@@ -352,7 +357,9 @@ _LABELS = _descriptor.Descriptor(
         ),
     ],
     extensions=[],
-    nested_types=[_LABELS_ITEMSENTRY,],
+    nested_types=[
+        _LABELS_ITEMSENTRY,
+    ],
     enum_types=[],
     serialized_options=None,
     is_extendable=False,

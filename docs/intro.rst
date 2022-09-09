@@ -21,4 +21,12 @@ Rules and heuristics are often used to kick start a project which has insufficie
 
 Release History
 ---------------
-:Version: ``v1.0 (31.12.2019)``
+:Version: ``v1.2.1 (25.01.2022)``
+
+          ``v1.2.0 (14.05.2021)``
+
+          ``v1.1.1 (25.02.2021)``
+
+          ``v1.1.0 (02.02.2021)``
+
+          ``v1.0.0 (29.04.2020)``

@@ -21,7 +21,7 @@ import hmrb
 # -- Project information -----------------------------------------------------
 
 project = "hmrb"
-copyright = "2019, Babylon Health"
+copyright = "2022, Babylon Health"
 author = "Kristian Boda, Sasho Savkov"
 
 # The short X.Y version
@@ -75,9 +75,6 @@ pygments_style = None
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [
-    "_themes",
-]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

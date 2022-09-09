@@ -5,21 +5,21 @@ nox.options.sessions = "lint", "mypy", "tests"
 locations = "hmrb", "noxfile.py"
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def requirements(session: Session) -> None:
     args = session.posargs or ["-o", "requirements.txt", "requirements.in"]
     session.install("pip-tools")
     session.run("pip-compile", *args)
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def black(session: Session) -> None:
     args = session.posargs or locations
     session.install("black")
     session.run("black", *args)
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def lint(session: Session) -> None:
     args = session.posargs or locations
     session.install(
@@ -32,14 +32,14 @@ def lint(session: Session) -> None:
     session.run("flake8", *args)
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def types(session: Session) -> None:
     args = session.posargs or locations
     session.install("mypy")
     session.run("mypy", *args)
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def safety(session: Session) -> None:
     session.install("safety")
     session.run("safety", "check", "--file=requirements.txt", "--full-report")
@@ -72,7 +72,7 @@ def tests_v2(session: Session) -> None:
     session.run("cargo", "test")
 
 
-@nox.session(python=["3.7"])
+@nox.session(python=["3.8"])
 def changelog(session: Session) -> None:
     args = session.posargs or ["--unreleased"]
     session.install("auto-changelog")
