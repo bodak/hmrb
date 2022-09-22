@@ -47,7 +47,7 @@ def safety(session: Session) -> None:
 
 @nox.session(python=["3.6", "3.7", "3.8"])
 def tests_v1(session: Session) -> None:
-    session.install("pytest", "pytest-cov")
+    session.install("pytest", "pytest-cov", "setuptools-rust")
     session.run("pip", "install", "-r", "requirements.txt")
     session.run("pip", "install", "-e", ".")
     session.run(
@@ -64,7 +64,7 @@ def tests_v1(session: Session) -> None:
 
 @nox.session(python=["3.6", "3.7", "3.8"])
 def tests_v2(session: Session) -> None:
-    session.install("pytest", "pytest-cov")
+    session.install("pytest", "pytest-cov", "setuptools-rust")
     session.run("pip", "install", "-r", "requirements.txt")
     session.run("pip", "install", "-e", ".")
     session.run("pytest", "hmrb/tests", "--cov-config=.coveragerc", "--cov")
