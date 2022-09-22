@@ -21,7 +21,7 @@ except ImportError:
     )
     print("attempting to install with pip...")
     print(subprocess.check_output(["pip", "install", "setuptools_rust"]))
-    from setuptools_rust import RustExtension
+    from setuptools_rust import RustExtension, Binding
 
 try:
     from Cython.Build import cythonize
