@@ -2,9 +2,9 @@ SHELL = /bin/bash
 DOCKER_SHELL = /bin/sh
 
 
-##
-# Definitions
-
+#############################################
+### Makefile Definitions
+#############################################
 
 ### Error codes
 
@@ -19,6 +19,8 @@ PACKAGE_VERSION = 2.0.0
 srcdir = $(CURDIR)/$(PACKAGE_NAME)
 builddir = $(CURDIR)/build
 distdir = $(CURDIR)/dist
+docdir = $(CURDIR)/docs
+autodocdir = $(docdir)/autodoc
 
 
 ### Tools
@@ -56,7 +58,7 @@ endif
 
 PIP = $(PYTHON) -m pip
 
-PYTHON3_VER = 3.7.7
+PYTHON3_VER = 3.8.6
 PYTHON_VERSION_INFO = $(shell ${PYTHON} -c 'if 1: \
 	from sys import version_info; \
 	print("{v.major}.{v.minor}.{v.micro}".format(v=version_info)) \
@@ -91,8 +93,9 @@ DOCKER_BASE_IMAGE = python:$(PYTHON3_VER)-slim-buster
 DOCKER_PORT = 8088
 
 
-##
-# All
+#############################################
+### All
+#############################################
 
 all: help
 ifdef tools
@@ -108,7 +111,10 @@ endif
 	fi
 
 
-##
+#############################################
+### Initializing repo
+#############################################
+
 .PHONY: init
 init:
 	git init
@@ -117,11 +123,12 @@ init:
 	git add .flake8
 	git commit -m "build: cookiecutter-python"
 
-##
-# Dev environmentt
+#############################################
+### Updating requirements
+#############################################
 
 .PHONY: requirements
-# target: requirements - Compile Pip requirements
+# target: requirements - Compile Pip requirements
 requirements:
 	@echo
 	@if (! docker stats --no-stream > /dev/null); then \
@@ -137,6 +144,10 @@ requirements:
 				pip-compile -o requirements.tmp requirements.in && \
 			cat requirements.tmp > requirements.txt'; \
 	fi
+
+#############################################
+### Installing requirements and package
+#############################################
 
 .PHONY: install
 # target: install - Install project sources in "development mode"
@@ -162,7 +173,6 @@ install: requirements.txt requirements-test.txt
 	@echo
 	@$(PYTHON) setup.py develop
 
-
 .PHONY: uninstall
 # target: uninstall - Uninstall project sources
 uninstall:
@@ -170,15 +180,17 @@ uninstall:
 	@$(PYTHON) setup.py develop --uninstall
 
 
-##
-# Running
+#############################################
+### Running
+#############################################
 
 run:
 	@echo
 	@$(PYTHON) $(PACKAGE_NAME)/__main__.py
 
-##
+#############################################
 # Linting
+#############################################
 
 black:
 	@echo
@@ -196,11 +208,13 @@ type:
 	@echo
 	@nox -rs types
 
-##
-# Testing
+#############################################
+### Testing
+#############################################
+
 
 .PHONY: tests
-# target: tests - Run tests
+# target: tests - Run tests
 tests:
 	@echo
 	nox -rs tests_v1
@@ -208,18 +222,19 @@ tests:
 
 ##
 # Building and packaging
-
 .PHONY: changelog
 changelog:
 	@echo
 	@nox -rs changelog
 
+#############################################
+### Publishing
+#############################################
 
 .PHONY: sdist
 # target: sdist - Create a source distribution
 sdist:
 	@echo
-	@$(PYTHON) setup.py build_ext
 	@[[ ! -f "$(distdir)"/*.tar.gz ]] && $(PYTHON) setup.py sdist
 
 .PHONY: dist
@@ -228,63 +243,79 @@ dist:
 	@echo
 	@[[ ! -f "$(distdir)"/*.whl ]] && $(PYTHON) setup.py bdist_wheel
 
-release: build
-	if python check_release.py;\
-	then\
-	  python -m twine upload --verbose;\
-	else\
-	  echo "Version already released";\
-	fi\
+# publish to testpypi
+.PHONY: publish
+publish:
+	@echo
+	@nox -rs publish
 
+# publish to pypi
+.PHONY: publish-confirm
+publish-confirm:
+	@echo
+	@nox -rs publish -- -r pypi
 
-#V1
-.PHONY: build_protoc
-build_protoc:
-	protoc -I=hmrb --python_out=hmrb hmrb/compat/v1/response.proto
-
-
-##
-# Docker
+#############################################
+### Docker
+#############################################
 
 .PHONY: docker-build
 # target: docker-build - Build image from scratch
 docker-build:
 	@echo
-	@$(DOCKER) build -f "$(CURDIR)/Dockerfile" -t $(PACKAGE_NAME):$(PACKAGE_VERSION) \
+	$(DOCKER) build -f "$(CURDIR)/Dockerfile" -t $(PACKAGE_NAME):$(PACKAGE_VERSION) \
 		--no-cache .
 
 .PHONY: docker-run
 # target: docker-run - Run temporary container in an interactive mode
 docker-run:
 	@echo
-	@$(DOCKER) run -it --rm -p $(DOCKER_PORT):$(DOCKER_PORT) \
+	$(DOCKER) run -it --rm -p $(DOCKER_PORT):$(DOCKER_PORT) \
 		$(PACKAGE_NAME):$(PACKAGE_VERSION)
 
 .PHONY: docker-tests
 # target: docker-test - Run tests inside docker
 docker-tests:
 	@echo
-	@$(DOCKER) run $(PACKAGE_NAME):$(PACKAGE_VERSION) "$(DOCKER_SHELL)" -c "make tests"
+	$(DOCKER) run $(PACKAGE_NAME):$(PACKAGE_VERSION) "$(DOCKER_SHELL)" -c "make tests"
 
 .PHONY: docker-clean
-# target: docker-clean - Remove all unused images, built containers and volumes
+# target: docker-clean - Remove all unused images, built containers and volumes
 docker-clean:
 	@echo
 	@$(DOCKER) ps -aq | xargs $(DOCKER) rm -fv
 	@$(DOCKER) system prune -af --volumes
 
-##
-# Documentation
+
+#############################################
+### Documentation
+#############################################
+
+SPHINX_BUILDDIR = $(docdir)/_build
+AUTODOC_EXCLUDE_MODULES =
+SPHINX_OPTS = -d "$(SPHINX_BUILDDIR)/doctrees" "$(docdir)"
+
 .PHONY: docs
 docs:
-	rm -rf docs/_build
-	sphinx-build -M html "docs/" "docs/_build"
+	@echo
+	@nox -rs docs -- sphinx-build -b html $(SPHINX_OPTS) "$(SPHINX_BUILDDIR)/html"
 
-livehtml:
-	sphinx-autobuild docs docs/_build/html
+.PHONY: apidoc
+# target: apidoc - Create one reST file with automodule directives per package
+apidoc: docs
+	@echo
+	@nox -rs docs -- sphinx-apidoc --force --private -o "$(autodocdir)" $(PACKAGE_NAME) \
+		$(foreach module,$(AUTODOC_EXCLUDE_MODULES),$(PACKAGE_NAME)/$(module))
 
-##
-# Auxiliary targets
+.PHONY: html
+# target: html - Render standalone HTML files
+html:
+	@echo
+	@nox -rs docs -- sphinx-autobuild $(SPHINX_OPTS) "$(SPHINX_BUILDDIR)/html"
+
+#############################################
+### Auxiliary targets
+#############################################
 
 .PHONY: help
 # target: help - Display all callable targets
@@ -293,26 +324,28 @@ help:
 	@$(GREPTOOL) "^\s*#\s*target\s*:\s*" [Mm]akefile \
 	| $(SED) -r "s/^\s*#\s*target\s*:\s*//g"
 
-
+#############################################
 ### Cleaners
+#############################################
 
 .PHONY: clean
 # target: clean - Clean the project's directory
 clean:
 	@find "$(CURDIR)" -path "$(CURDIR)/$(VENV_DIR)" -prune -o \
+			\
 		-name ".cache" -type d -exec rm -rfv {} + -o \
 		-name ".mypy_cache" -type d -exec rm -rf {} + -o \
 		-name ".pytest_cache" -type d -exec rm -rf {} + -o \
 		-name "__pycache__" -type d -exec rm -rf {} + -o \
-		-name "*.so" -exec rm -f {} + -o \
-		-name "*.c" -path "hmrb/compat/v1" -exec rm -f {} + -o \
-		-name "target" -type d -exec rm -rf {} + -o \
+			\
 		-name "*.py[cod]" -exec rm -f {} +
-
+	@find hmrb -name "*.c" -delete
+	@find hmrb -name "*.so" -delete
 .PHONY: distclean
-# target: distclean - Clean the project's build output
+# target: distclean - Clean the project's build output
 distclean:
 	@find "$(CURDIR)" -path "$(CURDIR)/$(VENV_DIR)" -prune -o \
+			\
 		-name ".eggs" -type d -exec rm -rf {} + -o \
 		-name "*.dist-info" -type d -exec rm -rf {} + -o \
 		-name "*.egg-info" -type d -exec rm -rf {} +
@@ -320,8 +353,23 @@ distclean:
 		"$(builddir)" \
 		"$(distdir)"
 
+	@find "$(CURDIR)" -name "$(autodocdir)/*.rst" -exec rm -f {} +
+	@rm -rf \
+		"$(SPHINX_BUILDDIR)" \
+		"$(SPHINX_STATIC)" \
+		"$(SPHINX_TEMPLATES)"
+
 .PHONY: mostlyclean
-# target: mostlyclean - Delete almost everything
+# target: mostlyclean - Delete almost everything
 mostlyclean: clean distclean
 	@find "$(CURDIR)" -name .DS_Store -exec rm -fv {} +
 	@rm -rf "$(VENV_DIR)"
+
+build_protoc:
+	protoc -I=hmrb --python_out=hmrb hmrb/response.proto
+
+install-fast-re:
+	git clone https://github.com/google/re2
+	cd re2; make
+	cd re2; sudo make install
+	pip3 install fb-re2==1.0.7

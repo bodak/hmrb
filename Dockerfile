@@ -1,4 +1,4 @@
-FROM bodak/rust-python-alpine
+FROM bodak/rust-python-alpine:2022-09-23
 
 # RUN apk add --no-cache cython libffi-dev sqlite-dev make
 RUN pip3 install cython

@@ -45,9 +45,9 @@ def safety(session: Session) -> None:
     session.run("safety", "check", "--file=requirements.txt", "--full-report")
 
 
-@nox.session(python=["3.6", "3.7", "3.8"])
+@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10"])
 def tests_v1(session: Session) -> None:
-    session.install("pytest", "pytest-cov", "setuptools-rust")
+    session.install("pytest", "pytest-cov")
     session.run("pip", "install", "-r", "requirements.txt")
     session.run("pip", "install", "-e", ".")
     session.run(
@@ -62,9 +62,9 @@ def tests_v1(session: Session) -> None:
     session.run("coverage", "xml")
 
 
-@nox.session(python=["3.6", "3.7", "3.8"])
+@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10"])
 def tests_v2(session: Session) -> None:
-    session.install("pytest", "pytest-cov", "setuptools-rust")
+    session.install("pytest", "pytest-cov")
     session.run("pip", "install", "-r", "requirements.txt")
     session.run("pip", "install", "-e", ".")
     session.run("pytest", "hmrb/tests", "--cov-config=.coveragerc", "--cov")
@@ -72,7 +72,7 @@ def tests_v2(session: Session) -> None:
     session.run("cargo", "test")
 
 
-@nox.session(python=["3.8"])
+@nox.session(python=["3.6", "3.7", "3.8", "3.9", "3.10"])
 def changelog(session: Session) -> None:
     args = session.posargs or ["--unreleased"]
     session.install("auto-changelog")

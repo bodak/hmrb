@@ -14,11 +14,11 @@ pycparser==2.21
     # via cffi
 semantic-version==2.10.0
     # via setuptools-rust
-setuptools-rust==1.5.2
+setuptools-rust
     # via -r requirements.in
 six==1.16.0
     # via protobuf
-typing-extensions==4.3.0
+typing-extensions
     # via setuptools-rust
 
 # The following packages are considered to be unsafe in a requirements file:
